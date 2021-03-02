@@ -1,4 +1,6 @@
 package com.example.batterylevel
+
+
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -7,39 +9,36 @@ import android.os.BatteryManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.view.ActionMode
-
-
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugins.FlutterPluginJumpToAct
-import io.flutter.plugins.GeneratedPluginRegistrant
+import io.flutter.plugins.PluginManager
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "samples.flutter.dev/battery"
     private val CHANNEL1 = "com.jzhu.jump/plugin"
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        PluginManager.getInstance().init(application);
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,CHANNEL).setMethodCallHandler{
-            call,result->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler{ call, result->
             if(call.method == "getBatteryLevel"){
                 val batteryLevel = getBatteryLevel();
 
                 if(batteryLevel != -1){
                     result.success(batteryLevel);
                 }else{
-                    result.error("UNAVAILABLE","Battery level not available.",null);
+                    result.error("UNAVAILABLE", "Battery level not available.", null);
                 }
             }else{
                 result.notImplemented();
             }
         }
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger,CHANNEL1).setMethodCallHandler{
-            call,result->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL1).setMethodCallHandler{ call, result->
             //接收来自flutter的指令oneAct
             if (call.method.equals("oneAct")) {
 
@@ -63,6 +62,14 @@ class MainActivity: FlutterActivity() {
 
                 //返回给flutter的参数
                 result.success("success");
+            }else if(call.method.equals("loadPlugin")){
+                val path: String = AssetUtil.copyAssetToCache(this@MainActivity, "plugin_module-debug.apk")
+                PluginManager.getInstance().loadPluginApk(path)
+
+            }else if(call.method.equals("startPlugin")){
+                // 先跳到代理Activity，由代理Activity展示真正的Activity内容
+                PluginManager.getInstance().gotoActivity(this@MainActivity,
+                        PluginManager.getInstance().packageInfo.activities[0].name)
             }
             else {
                 result.notImplemented();

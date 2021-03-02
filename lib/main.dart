@@ -76,6 +76,14 @@ class _MyHomePageState extends State<MyHomePage> {
     String result = await jumpAct.invokeMethod('oneAct');
   }
 
+  Future<Null> _jumpToPlugin() async{
+    String result = await jumpAct.invokeMethod('startPlugin');
+  }
+
+  Future<Null> _loadPlugin() async{
+    String result = await jumpAct.invokeMethod('loadPlugin');
+  }
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -95,8 +103,12 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ElevatedButton(
-              child: Text('Get Battery Level'),
-              onPressed: _jumpToNative,
+              child: Text('jump to plugin'),
+              onPressed: _jumpToPlugin,
+            ),
+            ElevatedButton(
+              child: Text('load plugin'),
+              onPressed: _loadPlugin,
             ),
             Text(_batteryLevel),
           ],
