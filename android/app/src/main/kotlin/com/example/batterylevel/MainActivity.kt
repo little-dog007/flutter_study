@@ -17,9 +17,12 @@ import io.flutter.plugins.PluginManager
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "samples.flutter.dev/battery"
     private val CHANNEL1 = "com.jzhu.jump/plugin"
+    private val CHANNEL2 = "plugins.flutter.io/path_provider";
+    private  var  application_ = application;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        application_ = application;
         PluginManager.getInstance().init(application);
     }
 
@@ -72,6 +75,19 @@ class MainActivity: FlutterActivity() {
                         PluginManager.getInstance().packageInfo.activities[0].name)
             }
             else {
+                result.notImplemented();
+            }
+        }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL2).setMethodCallHandler{ call, result->
+            if(call.method == "getApplicationDocumentsDirectory"){
+                val batteryLevel = getBatteryLevel();
+                val path = this.application_.filesDir;
+                if(path!= null){
+                    result.success(path.absolutePath);
+                }else{
+                    result.error("UNAVAILABLE", "Battery level not available.", null);
+                }
+            }else{
                 result.notImplemented();
             }
         }

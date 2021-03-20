@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'DownLoadManage.dart';
 import 'card_data.dart';
 
 class TipicalView extends StatefulWidget {
@@ -50,7 +51,9 @@ class _TipicalViewState extends State<TipicalView> {
             image: AssetImage(card_data.asset),
           )),
           child: TextButton(
-            onPressed: () {},
+            onPressed: () {
+              socket_download();
+            },
             child: Text('时钟'),
           ),
         )
