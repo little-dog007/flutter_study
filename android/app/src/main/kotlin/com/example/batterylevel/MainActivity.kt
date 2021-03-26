@@ -9,9 +9,11 @@ import android.os.BatteryManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.DownloadUtil
 import io.flutter.plugins.PluginManager
 
 class MainActivity: FlutterActivity() {
@@ -66,13 +68,21 @@ class MainActivity: FlutterActivity() {
                 //返回给flutter的参数
                 result.success("success");
             }else if(call.method.equals("loadPlugin")){
-                val path: String = AssetUtil.copyAssetToCache(this@MainActivity, "plugin_module-debug.apk")
+                val apk_path = this.application_.filesDir.absolutePath +"/zip/";
+                val path: String = AssetUtil.copyAssetToCache(this@MainActivity, "plugin_module-debug.apk",apk_path)
                 PluginManager.getInstance().loadPluginApk(path)
+                Log.d("test","loadPlugin success");
 
             }else if(call.method.equals("startPlugin")){
                 // 先跳到代理Activity，由代理Activity展示真正的Activity内容
                 PluginManager.getInstance().gotoActivity(this@MainActivity,
                         PluginManager.getInstance().packageInfo.activities[0].name)
+
+                Log.d("test","startPlugin success");
+            }else if(call.method.equals("download")){
+                Log.d("biyesheji","call download");
+                DownloadUtil.getInstance().setPath(this.filesDir.absolutePath);
+                DownloadUtil.getInstance().DownFileAsync();
             }
             else {
                 result.notImplemented();
@@ -110,6 +120,8 @@ class MainActivity: FlutterActivity() {
 
         return batteryLevel
     }
+
+
 
 
 

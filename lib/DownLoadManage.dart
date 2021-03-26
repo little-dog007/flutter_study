@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:batterylevel/Util/FileUtil.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:dio/dio.dart';
@@ -12,9 +13,13 @@ import 'dart:convert';
 
 // 网络下载管理器 单例
 class DownLoadManage {
+  static String tag = "DownLoadManage";
   static DownLoadManage mInstance_;
+  Dio dio = null;
 
-  DownLoadManage._internal() {}
+  DownLoadManage._internal() {
+    dio = Dio();
+  }
 
   static DownLoadManage GetIntances() {
     if (mInstance_ == null) {
@@ -22,10 +27,43 @@ class DownLoadManage {
     }
     return mInstance_;
   }
-}
 
-// 计算文件md5
-class MD5Util {
+  String URLGetter(String file_name){
+    String base_url = "http://10.90.185.207:8000/";
+    return base_url;
+  }
+
+  Future<void> downloadFile(String file_name) async {
+    String save_dir = await FileUtil().GetDownloadDir();
+    String save_path = save_dir + file_name;
+
+    String download_url = URLGetter(file_name) + file_name;
+
+    try {
+      //2、创建文件
+      FileUtils.mkdir([save_dir]);
+
+      print("start download:"+ download_url );
+      print("save in " + save_path);
+      await dio.download(
+        download_url,
+        save_path,
+        onReceiveProgress: (receivedBytes, totalBytes) {
+          print(tag + "receivedBytes " + receivedBytes.toString());
+          print(tag + "totalBytes " + totalBytes.toString());
+        },
+      );
+    } catch (e) {
+      print(tag + "can not download");
+      print(e);
+      return;
+    }
+
+    print("download complete");
+  }
+
+  // 计算文件md5
+
   static String GetMd5(String data) {
     var content = new Utf8Encoder().convert(data);
     var md5 = crypto.md5;
@@ -78,59 +116,3 @@ class MD5Util {
 //      displayImage(file);
 //    }
 // }
-
-Future<void> downloadFile() async {
-  String tag = "downloadFile:";
-  String fileURl = "http://10.90.185.207:8000";
-  Dio dio = Dio();
-
-  String dirloc = "";
-
-  var dir = await getApplicationDocumentsDirectory();
-  var path = dir.path;
-  print(tag+path);
-  path += "/testapk";
-
-  try {
-    //2、创建文件
-    FileUtils.mkdir([path]);
-    print(tag + path);
-    //3、使用 dio 下载文件
-    path += "/testapk.zip";
-    await dio.download(fileURl, (HttpHeaders responeHeaders){
-
-    },
-        onReceiveProgress: (receivedBytes, totalBytes) {
-      print(tag + "receivedBytes "+ receivedBytes.toString());
-      print(tag + "totalBytes "+ totalBytes.toString());
-    });
-  } catch (e) {
-    print(tag + "can not download");
-    print(e);
-  }
-}
-
-
-Future<void> socket_download() async {
-  var socket = await Socket.connect("10.90.185.207", 8000);
-
-  socket.writeln("GET / HTTP/1.1");
-  socket.writeln("Host:baidu.com");
-  socket.writeln("Connection:close");
-  socket.writeln("\r\n");
-
-  await socket.flush();
-
-
-
-  var res = await socket.cast<List<int>>().transform(utf8.decoder).listen((event) {
-      print(event);
-  });
-}
-
-  void main(){
-    socket_download();
-  }
-
-
-

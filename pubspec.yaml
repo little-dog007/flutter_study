@@ -42,6 +42,9 @@ dependencies:
   #文件下载
   dio: ^3.0.10
 
+  #文件解压
+  archive: ^2.0.13
+
 
 dev_dependencies:
   flutter_test:
@@ -60,10 +63,12 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+     - asset/design_course/
      - asset/images/one.jpg
      - asset/images/two.jpg
      - asset/images/three.jpg
      - asset/images/four.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

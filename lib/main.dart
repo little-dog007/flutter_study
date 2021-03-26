@@ -6,6 +6,8 @@ import 'Topical_view.dart';
 import 'card_data.dart';
 import 'dart:ui' as ui;
 
+import 'home_design_course.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -50,7 +52,8 @@ class MyPage extends StatelessWidget{
         appBar: AppBar(
           title: Text("custom"),
         ),
-        body: TipicalView(),
+        // body: TipicalView(),
+        body:DesignCourseHomeScreen(),
       ),
     );
   }

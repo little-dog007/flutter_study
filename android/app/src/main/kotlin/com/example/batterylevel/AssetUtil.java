@@ -4,6 +4,7 @@ import android.content.Context;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +17,8 @@ public class AssetUtil {
      * @param fileName
      * @return
      */
-    public static String copyAssetToCache(Context context, String fileName) {
+    public static String copyAssetToCache(Context context, String fileName,String apk_path) {
+
 
         File cacheDir = context.getCacheDir();//app的缓存目录
         if (!cacheDir.exists()) {
@@ -31,7 +33,7 @@ public class AssetUtil {
         try {
             boolean res = outPath.createNewFile();//创建文件，如果创建成功，就返回true
             if (res) {
-                is = context.getAssets().open(fileName);//拿到main/assets目录的输入流，用于读取字节
+                is = new FileInputStream(apk_path+fileName);//拿到main/assets目录的输入流，用于读取字节
                 fos = new FileOutputStream(outPath);//读取出来的字节最终写到outPath
                 byte[] buf = new byte[is.available()];//缓存区
                 int byteCount;
