@@ -1,4 +1,3 @@
-
 import 'package:batterylevel/popular_course_list_view.dart';
 import 'package:flutter/material.dart';
 import 'category_list_view.dart';
@@ -6,13 +5,15 @@ import 'course_info_screen.dart';
 import 'design_course_app_theme.dart';
 import 'models/Util.dart';
 
+// 入口
+
 class DesignCourseHomeScreen extends StatefulWidget {
   @override
   _DesignCourseHomeScreenState createState() => _DesignCourseHomeScreenState();
 }
 
 class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
-  CategoryType categoryType = CategoryType.ui;
+  CategoryType categoryType = CategoryType.uninstall;
 
   @override
   Widget build(BuildContext context) {
@@ -26,16 +27,19 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
               height: MediaQuery.of(context).padding.top,
             ),
             getAppBarUI(),
+            // expanded 是 Flexible 控件的fix 设置为FlexFit.tight,强制填充剩余空间
             Expanded(
+              // SingleChildScrollView 区域可以滚动
               child: SingleChildScrollView(
                 child: Container(
+                  // MediaQuery.of(context) 获取设备信息
                   height: MediaQuery.of(context).size.height,
                   child: Column(
                     children: <Widget>[
-                      getSearchBarUI(),
+                      // getSearchBarUI(),
                       getCategoryUI(),
                       Flexible(
-                        child: getPopularCourseUI(),
+                        child: getNewCategoryUi(),
                       ),
                     ],
                   ),
@@ -56,7 +60,7 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
         Padding(
           padding: const EdgeInsets.only(top: 8.0, left: 18, right: 16),
           child: Text(
-            'Category',
+            '分类',
             textAlign: TextAlign.left,
             style: TextStyle(
               fontWeight: FontWeight.w600,
@@ -73,33 +77,38 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
           padding: const EdgeInsets.only(left: 16, right: 16),
           child: Row(
             children: <Widget>[
-              getButtonUI(CategoryType.ui, categoryType == CategoryType.ui),
+              getButtonUI(CategoryType.uninstall,
+                  categoryType == CategoryType.uninstall),
               const SizedBox(
                 width: 16,
               ),
-              getButtonUI(
-                  CategoryType.coding, categoryType == CategoryType.coding),
+              getButtonUI(CategoryType.installed,
+                  categoryType == CategoryType.installed),
               const SizedBox(
                 width: 16,
               ),
-              getButtonUI(
-                  CategoryType.basic, categoryType == CategoryType.basic),
             ],
           ),
         ),
         const SizedBox(
           height: 16,
         ),
-        CategoryListView(
-          callBack: () {
-            moveTo();
-          },
-        ),
+        // CategoryListView(
+        //   callBack: () {
+        //     moveTo();
+        //   },
+        // ),
       ],
     );
   }
 
-  Widget getPopularCourseUI() {
+  Widget getPopularCourseUI(bool install) {
+    String txt = '';
+    if(install){
+      txt = "已安装的小插件";
+    }else{
+      txt = "热门插件";
+    }
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, left: 18, right: 16),
       child: Column(
@@ -107,7 +116,7 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Popular Course',
+            txt,
             textAlign: TextAlign.left,
             style: TextStyle(
               fontWeight: FontWeight.w600,
@@ -139,13 +148,14 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
 
   Widget getButtonUI(CategoryType categoryTypeData, bool isSelected) {
     String txt = '';
-    if (CategoryType.ui == categoryTypeData) {
-      txt = 'Ui/Ux';
-    } else if (CategoryType.coding == categoryTypeData) {
-      txt = 'Coding';
-    } else if (CategoryType.basic == categoryTypeData) {
-      txt = 'Basic UI';
+    bool install = false;
+    if (CategoryType.uninstall == categoryTypeData) {
+      txt = '未安装';
+    } else if (CategoryType.installed == categoryTypeData) {
+      txt = '已安装';
+      install = true;
     }
+
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
@@ -224,7 +234,7 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
                           ),
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                            labelText: 'Search for course',
+                            labelText: '搜索小工具',
                             border: InputBorder.none,
                             helperStyle: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -242,6 +252,7 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
                         ),
                       ),
                     ),
+                    // 固定宽高的组件
                     SizedBox(
                       width: 60,
                       height: 60,
@@ -260,6 +271,7 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
     );
   }
 
+  // 头部提示
   Widget getAppBarUI() {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, left: 18, right: 18),
@@ -271,7 +283,7 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'Choose your',
+                  '选择你',
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontWeight: FontWeight.w400,
@@ -281,7 +293,7 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
                   ),
                 ),
                 Text(
-                  'Design Course',
+                  '喜欢的小工具',
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -302,10 +314,21 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
       ),
     );
   }
+
+  Widget getNewCategoryUi(){
+    if(categoryType == CategoryType.installed){
+      return Flexible(
+        child: getPopularCourseUI(true),
+      );
+    }else{
+      return Flexible(
+        child: getPopularCourseUI(false),
+      );
+    }
+}
 }
 
 enum CategoryType {
-  ui,
-  coding,
-  basic,
+  uninstall,
+  installed,
 }

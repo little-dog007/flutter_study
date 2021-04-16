@@ -21,12 +21,14 @@ class DownLoadManage {
     dio = Dio();
   }
 
-  static DownLoadManage GetIntances() {
+  static DownLoadManage _getIntances() {
     if (mInstance_ == null) {
       mInstance_ = DownLoadManage._internal();
     }
     return mInstance_;
   }
+
+  factory DownLoadManage.getInstance() => _getIntances();
 
   String URLGetter(String file_name){
     String base_url = "http://10.90.185.207:8000/";

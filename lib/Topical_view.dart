@@ -32,7 +32,7 @@ class _TipicalViewState extends State<TipicalView> {
     // TODO: implement initState
     super.initState();
     cardDataList_ = cardDataList;
-    downLoadManage = DownLoadManage.GetIntances();
+    downLoadManage = DownLoadManage.getInstance();
     print("length" + cardDataList_.length.toString());
   }
 
