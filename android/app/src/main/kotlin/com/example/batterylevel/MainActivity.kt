@@ -44,33 +44,11 @@ class MainActivity: FlutterActivity() {
         }
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL1).setMethodCallHandler{ call, result->
-            //接收来自flutter的指令oneAct
-            if (call.method.equals("oneAct")) {
-
-                //跳转到指定Activity
-                var  intent:Intent = Intent(activity, OneActivity::class.java);
-                activity.startActivity(intent);
-
-                //返回给flutter的参数
-                result.success("success");
-            }
-            //接收来自flutter的指令twoAct
-            else if (call.method.equals("twoAct")) {
-
-                //解析参数
-                var text:String? = call.argument("flutter");
-
-                //带参数跳转到指定Activity
-                var intent:Intent = Intent(activity, TwoActivity::class.java);
-                intent.putExtra(TwoActivity.VALUE, text);
-                activity.startActivity(intent);
-
-                //返回给flutter的参数
-                result.success("success");
-            }else if(call.method.equals("loadPlugin")){
+            if(call.method.equals("loadPlugin")){
                 var text:String? = call.argument("app_name");
-                val apk_path = this.application_.filesDir.absolutePath +"/download/";
-                print(apk_path);
+                val apk_path = this.application_.filesDir.absolutePath +"/unzip/";
+                Log.d("test","apk_path:" + apk_path);
+                Log.d("test","text "+ text);
                 val path: String = AssetUtil.copyAssetToCache(this@MainActivity, text,apk_path)
                 PluginManager.getInstance().loadPluginApk(path)
                 Log.d("test","loadPlugin success");

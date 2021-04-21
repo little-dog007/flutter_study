@@ -1,4 +1,5 @@
 import 'package:batterylevel/Util/DownLoadManage.dart';
+import 'package:batterylevel/Util/FileUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:m_loading/m_loading.dart';
@@ -34,6 +35,10 @@ class _CourseInfoScreenState extends State<CourseInfoScreen>
     super.initState();
     setData();
     app m_app = widget.m_app;
+
+    if(m_app.is_install){
+      status = 1;
+    }
   }
   Future<void> setData() async {
     animationController.forward();
@@ -57,7 +62,11 @@ class _CourseInfoScreenState extends State<CourseInfoScreen>
       name += ".zip";
     }
     print("start download " + name);
-    return await DownLoadManage.getInstance().downloadFile(name);
+    bool ret =  await DownLoadManage.getInstance().downloadFile(name);
+    if(ret){
+      FileUtil().unzip(name);
+    }
+    return ret;
   }
 
   @override
@@ -290,6 +299,7 @@ class _CourseInfoScreenState extends State<CourseInfoScreen>
     return getUninstallUI();
   }
 
+  // 下载按钮
   Widget getUninstallUI() {
     print("getUninstallUI");
     //return getTimeBoxUI(str, ()=>{print("you click this")});
@@ -310,9 +320,9 @@ class _CourseInfoScreenState extends State<CourseInfoScreen>
                     Expanded(
                       child: InkWell(
                         onTap: () {
-                          // status = 2;
-                          // setState(() {});
-                          print("you click this");
+                          status = 2;
+                          setState(() {});
+
                         },
                         child: Container(
                           height: 48,
@@ -353,15 +363,31 @@ class _CourseInfoScreenState extends State<CourseInfoScreen>
         ));
   }
 
-  void startApp() async {
+  void loadApp() async {
     final channel = MethodChannel('com.jzhu.jump/plugin');
 
-    await channel.invokeMethod('loadPlugin');
+    String name = widget.m_app.name;
+    if(name.indexOf(".zip") != -1){
+      name = name.substring(0,name.indexOf(".zip")-1);
+    }
+    if(name.indexOf(".apk") == -1){
+      name += ".apk";
+    }
+
+    print("loading");
+    await channel.invokeMethod('loadPlugin',{"app_name":'$name'});
+
+  }
+  void startApp() async{
+    final channel = MethodChannel('com.jzhu.jump/plugin');
+
+    print("start");
     await channel.invokeMethod('startPlugin');
   }
 
   void deleteApp() {}
 
+  // 启动，卸载按钮
   Widget getInstallUI() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -369,6 +395,8 @@ class _CourseInfoScreenState extends State<CourseInfoScreen>
       children: [
         Row(
           children: [
+            Spacer(),
+            getTimeBoxUI("加载", () => {loadApp()}),
             Spacer(),
             getTimeBoxUI("启动", () => {startApp()}),
             Spacer(),
@@ -379,64 +407,6 @@ class _CourseInfoScreenState extends State<CourseInfoScreen>
         SizedBox(
           height: 30,
         ),
-        AnimatedOpacity(
-            duration: const Duration(milliseconds: 500),
-            opacity: opacity3,
-            child: Column(
-              children: [
-                Padding(
-                    padding:
-                        const EdgeInsets.only(left: 16, bottom: 16, right: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        const SizedBox(
-                          width: 16,
-                        ),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              status = 2;
-                              setState(() {});
-                            },
-                            child: Container(
-                              height: 48,
-                              decoration: BoxDecoration(
-                                //color: DesignCourseAppTheme.nearlyBlue,
-                                color: widget.m_app.is_install
-                                    ? DesignCourseAppTheme.grey
-                                    : DesignCourseAppTheme.nearlyBlue,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(16.0),
-                                ),
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                      color: DesignCourseAppTheme.nearlyBlue
-                                          .withOpacity(0.5),
-                                      offset: const Offset(1.1, 1.1),
-                                      blurRadius: 10.0),
-                                ],
-                              ),
-                              child: Center(
-                                child: Text(
-                                  str,
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 18,
-                                    letterSpacing: 0.0,
-                                    color: DesignCourseAppTheme.nearlyWhite,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    )),
-              ],
-            )),
       ],
     );
   }

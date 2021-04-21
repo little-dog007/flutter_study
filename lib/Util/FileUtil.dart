@@ -41,7 +41,7 @@ class FileUtil{
   }
 
   Future<String> GetUnzipDir() async{
-    String unzip_dir = "/zip/";
+    String unzip_dir = "/unzip/";
     return await GetBaseDir() + unzip_dir;
   }
 
