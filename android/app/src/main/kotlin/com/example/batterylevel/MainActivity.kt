@@ -55,14 +55,16 @@ class MainActivity: FlutterActivity() {
 
             }else if(call.method.equals("startPlugin")){
                 // 先跳到代理Activity，由代理Activity展示真正的Activity内容
-                PluginManager.getInstance().gotoActivity(this@MainActivity,
-                        PluginManager.getInstance().packageInfo.activities[0].name)
-
+//                PluginManager.getInstance().gotoActivity(this@MainActivity,
+//                        PluginManager.getInstance().packageInfo.activities[0].name)
+                var text:String? = call.argument("app_name");
+//                var intent:Intent = Intent(activity, TwoActivity::class.java);
+//                intent.putExtra(TwoActivity.VALUE, text);
+//                activity.startActivity(intent);
+                //跳转到指定Activity
+                var  intent:Intent = Intent(activity, OneActivity::class.java);
+                activity.startActivity(intent);
                 Log.d("test","startPlugin success");
-            }else if(call.method.equals("download")){
-                Log.d("biyesheji","call download");
-                DownloadUtil.getInstance().setPath(this.filesDir.absolutePath);
-                DownloadUtil.getInstance().DownFileAsync();
             }
             else {
                 result.notImplemented();

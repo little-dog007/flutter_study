@@ -380,9 +380,15 @@ class _CourseInfoScreenState extends State<CourseInfoScreen>
   }
   void startApp() async{
     final channel = MethodChannel('com.jzhu.jump/plugin');
-
+    String name = widget.m_app.name;
+    if(name.indexOf(".zip") != -1){
+      name = name.substring(0,name.indexOf(".zip")-1);
+    }
+    if(name.indexOf(".apk") == -1){
+      name += ".apk";
+    }
     print("start");
-    await channel.invokeMethod('startPlugin');
+    await channel.invokeMethod('startPlugin',{"app_name":'$name'});
   }
 
   void deleteApp() {}

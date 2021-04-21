@@ -28,9 +28,13 @@ public class ProxyActivity extends Activity {
         super.onCreate(savedInstanceState);
         realActivityName = getIntent().getStringExtra(PluginApkConst.TAG_CLASS_NAME);//宿主，将真正的跳转意图，放在了这个参数className中，
         //拿到realActivityName，接下来的工作，自然就是展示出真正的Activity
+        Log.e("tag","i run to this: proxyActivity 31");
         try {// 原则，反射创建RealActivity对象，但是，去拿这个它的class，只能用dexClassLoader
             Class<?> realActivityClz = PluginManager.getInstance().getDexClassLoader().loadClass(realActivityName);
+            Log.e("tag","i run to this: proxyActivity 34");
+            Log.e("tag",realActivityClz.toString());
             Object obj = realActivityClz.newInstance();
+            Log.e("tag","i run to this: proxyActivity 35");
             if (obj instanceof IPlugin) {//所有的插件Activity，都必须是IPlugin的实现类
                 iPlugin = (IPlugin) obj;
                 Bundle bd = new Bundle();
@@ -42,6 +46,7 @@ public class ProxyActivity extends Activity {
                 Log.e("tag","is not Iplugin");
             }
         } catch (Exception e) {
+            Log.e("tag","something wrror in start app");
             e.printStackTrace();
         }
     }

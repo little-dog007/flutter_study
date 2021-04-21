@@ -19,6 +19,7 @@ public class OneActivity extends Activity implements View.OnClickListener {
         mGoFlutterBtn = findViewById(R.id.go_flutter);
 
         mGoFlutterBtn.setOnClickListener(this);
+        mGoFlutterBtn.setText("test,click to go to flutter");
 
     }
 

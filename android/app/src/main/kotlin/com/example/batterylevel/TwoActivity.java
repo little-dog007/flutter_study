@@ -20,7 +20,7 @@ public class TwoActivity extends Activity{
 
         String text = getIntent().getStringExtra(VALUE);
 
-        mTextView.setText(text);
+        //mTextView.setText(text);
 
     }
 

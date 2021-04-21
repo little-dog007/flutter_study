@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.util.Log;
 import android.content.res.Resources;
 
 import java.io.File;
@@ -86,6 +87,7 @@ public class PluginManager {
     }
 
     public DexClassLoader getDexClassLoader() {
+        Log.e("tag",dexClassLoader.toString());
         return dexClassLoader;
     }
 
@@ -101,6 +103,7 @@ public class PluginManager {
      * @param realActivityClassName
      */
     public void gotoActivity(Context context, String realActivityClassName) {
+        Log.d("name","start name :" + realActivityClassName);
         Intent intent = new Intent(context, ProxyActivity.class);
         intent.putExtra(PluginApkConst.TAG_CLASS_NAME, realActivityClassName);
         context.startActivity(intent);
