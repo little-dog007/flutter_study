@@ -1,28 +1,100 @@
 import 'package:batterylevel/popular_course_list_view.dart';
 import 'package:flutter/material.dart';
+import 'package:m_loading/m_loading.dart';
+import 'Util/Server.dart';
+import 'all_app_screen.dart';
 import 'category_list_view.dart';
-import 'course_info_screen.dart';
+import 'app_info_screen.dart';
 import 'design_course_app_theme.dart';
 import 'models/Util.dart';
 
 // 入口
-
-class DesignCourseHomeScreen extends StatefulWidget {
+class DesignHomeScreen extends StatefulWidget {
   @override
-  _DesignCourseHomeScreenState createState() => _DesignCourseHomeScreenState();
+  _DesignHomeScreenState createState() => _DesignHomeScreenState();
 }
 
-class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
+class _DesignHomeScreenState extends State<DesignHomeScreen> {
   CategoryType categoryType = CategoryType.uninstall;
+  Server server;
+  Future _future;
+
+  @override
+  void initState() {
+    server = Server.GetInstance();
+    _future = Future.delayed(Duration(seconds: 0), () {
+      server.init();
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: _future,
+        builder: (context, snapshot) {
+          print("build future");
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return InkWell(
+                onTap: () {
+                    print("you click this");
+                     _future = Future.delayed(Duration(seconds: 3), () {
+                       server.init_test();
+                    });
+                    refersh();
+                },
+                child: Text("网络错误，点击重试",
+                    style: TextStyle(
+                      color: DesignCourseAppTheme.darkerText,
+                    )),
+              );
+            }
+            return getHomeUI();
+          } else {
+            print("get loading");
+            return getloading(PacmanLoading(
+              mouthColor: Colors.blue,
+              ballColor: Colors.red,
+            ));
+          }
+        });
+  }
+
+  Widget getloading(
+    Widget loading, {
+    double width = 60,
+    double height = 60,
+  }) {
+    return Center(
+      child: Container(
+        height: height,
+        width: width,
+        child: loading,
+      ),
+    );
+  }
+
+
+
+
+  Widget getHomeUI() {
     return Container(
       color: DesignCourseAppTheme.nearlyWhite,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Column(
           children: <Widget>[
+            InkWell(
+              onTap: () {
+                print("you click 刷新");
+                _future = Future.delayed(Duration(seconds: 3), () {
+                  server.init();
+                });
+                refersh();
+              },
+              child: Text("刷新"),
+            ),
             SizedBox(
               height: MediaQuery.of(context).padding.top,
             ),
@@ -31,19 +103,7 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
             Expanded(
               // SingleChildScrollView 区域可以滚动
               child: SingleChildScrollView(
-                child: Container(
-                  // MediaQuery.of(context) 获取设备信息
-                  height: MediaQuery.of(context).size.height,
-                  child: Column(
-                    children: <Widget>[
-                      // getSearchBarUI(),
-                      getCategoryUI(),
-                      Flexible(
-                        child: getNewCategoryUi(),
-                      ),
-                    ],
-                  ),
-                ),
+                child: getSingleChildScroll(),
               ),
             ),
           ],
@@ -102,46 +162,117 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
     );
   }
 
+  Widget getSingleChildScroll() {
+    return Container(
+      // MediaQuery.of(context) 获取设备信息
+      height: MediaQuery.of(context).size.height,
+      child: Column(
+        children: <Widget>[
+          // getSearchBarUI(),
+          getCategoryUI(),
+
+          Flexible(
+            child: getCardArea(),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget getPopularCourseUI(bool install) {
     String txt = '';
-    if(install){
-      txt = "已安装的小插件";
-    }else{
-      txt = "热门插件";
+    List<app> lst = [];
+    if (server.apps_lst != null) {
+      lst = List.from(server.apps_lst);
+      print(lst);
+      if (install) {
+        txt = "已安装的小插件";
+
+        lst = server.apps_lst
+            .where((element) => element.is_install == true)
+            .toList();
+      } else {
+        txt = "热门插件";
+
+        lst = server.apps_lst
+            .where((element) => element.is_install != true)
+            .toList();
+        lst.sort(
+            (left, right) => right.download_num.compareTo(left.download_num));
+      }
+    } else {
+      print("getPopularCourseUI :" + "server.apps_lst == null");
     }
+
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, left: 18, right: 16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            txt,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 22,
-              letterSpacing: 0.27,
-              color: DesignCourseAppTheme.darkerText,
-            ),
+          Row(
+            children: [
+              Text(txt,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 22,
+                    letterSpacing: 0.27,
+                    color: DesignCourseAppTheme.darkerText,
+                  )),
+              Spacer(),
+              InkWell(
+                onTap: () {
+                  print("click");
+                  moveToSeeAll(categoryType == CategoryType.installed);
+                },
+                child: Text("see all",
+                    style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontSize: 16,
+                        color: DesignCourseAppTheme.nearlyBlue,
+                        letterSpacing: 0.27)),
+              )
+            ],
           ),
           Flexible(
             child: PopularCourseListView(
-              callBack: () {
-                moveTo();
-              },
-            ),
+                callBack: (app m_app) {
+                  moveTo(m_app);
+                },
+                apps_card_lst: lst),
           )
         ],
       ),
     );
   }
 
-  void moveTo() {
+  void moveTo(app m_app) {
     Navigator.push<dynamic>(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => CourseInfoScreen(),
+        builder: (BuildContext context) => CourseInfoScreen(m_app),
+      ),
+    ).then((value) => value ? refersh() : print("not refersh"));
+  }
+
+  void refersh() {
+    setState(() {});
+  }
+
+  void moveToSeeAll(bool is_install) {
+    List<app> lst = [];
+    if (server.apps_lst != null) {
+      lst = List.from(server.apps_lst);
+    } else {
+      print("getPopularCourseUI :" + "server.apps_lst == null");
+    }
+
+    Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) =>
+            AllappScreen((app m_app) => {moveTo(m_app)}, lst, is_install),
       ),
     );
   }
@@ -315,17 +446,15 @@ class _DesignCourseHomeScreenState extends State<DesignCourseHomeScreen> {
     );
   }
 
-  Widget getNewCategoryUi(){
-    if(categoryType == CategoryType.installed){
-      return Flexible(
-        child: getPopularCourseUI(true),
-      );
-    }else{
-      return Flexible(
-        child: getPopularCourseUI(false),
-      );
-    }
-}
+  Widget getCardArea() {
+    return Column(
+      children: [
+        Flexible(
+          child: getPopularCourseUI(categoryType == CategoryType.installed),
+        ),
+      ],
+    );
+  }
 }
 
 enum CategoryType {

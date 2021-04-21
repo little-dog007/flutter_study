@@ -44,6 +44,8 @@ dependencies:
 
   #文件解压
   archive: ^2.0.13
+  # loading 动画
+  m_loading: ^0.0.1
 
 
 dev_dependencies:

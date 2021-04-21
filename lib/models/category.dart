@@ -45,6 +45,7 @@ class Category {
     ),
   ];
 
+
   static List<Category> popularCourseList = <Category>[
     Category(
       imagePath: 'asset/design_course/interFace3.png',

@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 
 import 'design_course_app_theme.dart';
 import 'models/category.dart';
+import 'Util/Server.dart';
 
 class CategoryListView extends StatefulWidget {
-  const CategoryListView({Key key, this.callBack}) : super(key: key);
+  const CategoryListView({Key key, this.callBack,this.apps_card_lst}) : super(key: key);
 
   final Function callBack;
+  final List<app> apps_card_lst ;
+
   @override
   _CategoryListViewState createState() => _CategoryListViewState();
 }
@@ -50,12 +53,12 @@ class _CategoryListViewState extends State<CategoryListView>
               return ListView.builder(
                 padding: const EdgeInsets.only(
                     top: 0, bottom: 0, right: 16, left: 16),
-                itemCount: Category.categoryList.length,
+                itemCount: widget.apps_card_lst.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
-                  final int count = Category.categoryList.length > 10
+                  final int count = widget.apps_card_lst.length > 10
                       ? 10
-                      : Category.categoryList.length;
+                      : widget.apps_card_lst.length;
                   final Animation<double> animation =
                       Tween<double>(begin: 0.0, end: 1.0).animate(
                           CurvedAnimation(
@@ -65,7 +68,7 @@ class _CategoryListViewState extends State<CategoryListView>
                   animationController.forward();
 
                   return CategoryView(
-                    category: Category.categoryList[index],
+                    category: widget.apps_card_lst[index],
                     animation: animation,
                     animationController: animationController,
                     callback: () {
@@ -92,7 +95,7 @@ class CategoryView extends StatelessWidget {
       : super(key: key);
 
   final VoidCallback callback;
-  final Category category;
+  final app category;
   final AnimationController animationController;
   final Animation<dynamic> animation;
 
@@ -101,7 +104,7 @@ class CategoryView extends StatelessWidget {
     return AnimatedBuilder(
       animation: animationController,
       builder: (BuildContext context, Widget child) {
-        return FadeTransition(
+        return FadeTransition( // 构造渐隐渐显动画
           opacity: animation,
           child: Transform(
             transform: Matrix4.translationValues(
@@ -141,7 +144,7 @@ class CategoryView extends StatelessWidget {
                                             padding:
                                                 const EdgeInsets.only(top: 16),
                                             child: Text(
-                                              category.title,
+                                              category.name,
                                               textAlign: TextAlign.left,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w600,
@@ -165,22 +168,11 @@ class CategoryView extends StatelessWidget {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.center,
                                               children: <Widget>[
-                                                Text(
-                                                  '${category.lessonCount} lesson',
-                                                  textAlign: TextAlign.left,
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w200,
-                                                    fontSize: 12,
-                                                    letterSpacing: 0.27,
-                                                    color: DesignCourseAppTheme
-                                                        .grey,
-                                                  ),
-                                                ),
                                                 Container(
                                                   child: Row(
                                                     children: <Widget>[
                                                       Text(
-                                                        '${category.rating}',
+                                                        '${category.id}',
                                                         textAlign:
                                                             TextAlign.left,
                                                         style: TextStyle(
@@ -206,51 +198,51 @@ class CategoryView extends StatelessWidget {
                                               ],
                                             ),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 16, right: 16),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Text(
-                                                  '\$${category.money}',
-                                                  textAlign: TextAlign.left,
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 18,
-                                                    letterSpacing: 0.27,
-                                                    color: DesignCourseAppTheme
-                                                        .nearlyBlue,
-                                                  ),
-                                                ),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: DesignCourseAppTheme
-                                                        .nearlyBlue,
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                            Radius.circular(
-                                                                8.0)),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            4.0),
-                                                    child: Icon(
-                                                      Icons.add,
-                                                      color:
-                                                          DesignCourseAppTheme
-                                                              .nearlyWhite,
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
+                                          // Padding(
+                                          //   padding: const EdgeInsets.only(
+                                          //       bottom: 16, right: 16),
+                                          //   child: Row(
+                                          //     mainAxisAlignment:
+                                          //         MainAxisAlignment
+                                          //             .spaceBetween,
+                                          //     crossAxisAlignment:
+                                          //         CrossAxisAlignment.start,
+                                          //     children: <Widget>[
+                                          //       Text(
+                                          //         '\$${category.money}',
+                                          //         textAlign: TextAlign.left,
+                                          //         style: TextStyle(
+                                          //           fontWeight: FontWeight.w600,
+                                          //           fontSize: 18,
+                                          //           letterSpacing: 0.27,
+                                          //           color: DesignCourseAppTheme
+                                          //               .nearlyBlue,
+                                          //         ),
+                                          //       ),
+                                          //       Container(
+                                          //         decoration: BoxDecoration(
+                                          //           color: DesignCourseAppTheme
+                                          //               .nearlyBlue,
+                                          //           borderRadius:
+                                          //               const BorderRadius.all(
+                                          //                   Radius.circular(
+                                          //                       8.0)),
+                                          //         ),
+                                          //         child: Padding(
+                                          //           padding:
+                                          //               const EdgeInsets.all(
+                                          //                   4.0),
+                                          //           child: Icon(
+                                          //             Icons.add,
+                                          //             color:
+                                          //                 DesignCourseAppTheme
+                                          //                     .nearlyWhite,
+                                          //           ),
+                                          //         ),
+                                          //       )
+                                          //     ],
+                                          //   ),
+                                          // ),
                                         ],
                                       ),
                                     ),
@@ -273,7 +265,13 @@ class CategoryView extends StatelessWidget {
                                   const BorderRadius.all(Radius.circular(16.0)),
                               child: AspectRatio(
                                   aspectRatio: 1.0,
-                                  child: Image.asset(category.imagePath)),
+                                  child:  FadeInImage(
+                                    placeholder:AssetImage('asset/design_course/interFace1.png'),
+                                    image: NetworkImage(category.img),
+                                    width: 10,
+                                    height:10
+                                  )
+                            )
                             )
                           ],
                         ),

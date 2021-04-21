@@ -1,16 +1,23 @@
 
+
 import 'package:flutter/material.dart';
 
+import 'Util/Server.dart';
+import 'category_list_view.dart';
+import 'app_info_screen.dart';
 import 'design_course_app_theme.dart';
 import 'models/Util.dart';
 import 'models/category.dart';
 
 class PopularCourseListView extends StatefulWidget {
-  const PopularCourseListView({Key key, this.callBack}) : super(key: key);
+  const PopularCourseListView({Key key, this.callBack, this.apps_card_lst})
+      : super(key: key);
 
   final Function callBack;
+  final List<app> apps_card_lst;
   @override
   _PopularCourseListViewState createState() => _PopularCourseListViewState();
+
 }
 
 class _PopularCourseListViewState extends State<PopularCourseListView>
@@ -28,6 +35,7 @@ class _PopularCourseListViewState extends State<PopularCourseListView>
     return true;
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -43,9 +51,9 @@ class _PopularCourseListViewState extends State<PopularCourseListView>
               physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
               children: List<Widget>.generate(
-                Category.popularCourseList.length,
+                widget.apps_card_lst.length,
                 (int index) {
-                  final int count = Category.popularCourseList.length;
+                  final int count = widget.apps_card_lst.length;
                   final Animation<double> animation =
                       Tween<double>(begin: 0.0, end: 1.0).animate(
                     CurvedAnimation(
@@ -57,9 +65,9 @@ class _PopularCourseListViewState extends State<PopularCourseListView>
                   animationController.forward();
                   return CategoryView(
                     callback: () {
-                      widget.callBack();
+                      widget.callBack(widget.apps_card_lst[index]);
                     },
-                    category: Category.popularCourseList[index],
+                    category: widget.apps_card_lst[index],
                     animation: animation,
                     animationController: animationController,
                   );
@@ -89,7 +97,7 @@ class CategoryView extends StatelessWidget {
       : super(key: key);
 
   final VoidCallback callback;
-  final Category category;
+  final app category;
   final AnimationController animationController;
   final Animation<dynamic> animation;
 
@@ -135,7 +143,7 @@ class CategoryView extends StatelessWidget {
                                             padding: const EdgeInsets.only(
                                                 top: 16, left: 16, right: 16),
                                             child: Text(
-                                              category.title,
+                                              category.name,
                                               textAlign: TextAlign.left,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w600,
@@ -159,22 +167,14 @@ class CategoryView extends StatelessWidget {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.center,
                                               children: <Widget>[
-                                                Text(
-                                                  '${category.lessonCount} lesson',
-                                                  textAlign: TextAlign.left,
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w200,
-                                                    fontSize: 12,
-                                                    letterSpacing: 0.27,
-                                                    color: DesignCourseAppTheme
-                                                        .grey,
-                                                  ),
-                                                ),
                                                 Container(
                                                   child: Row(
                                                     children: <Widget>[
                                                       Text(
-                                                        '${category.rating}',
+                                                        "                 "
+                                                      ),
+                                                      Text(
+                                                        '${category.download_num}',
                                                         textAlign:
                                                             TextAlign.left,
                                                         style: TextStyle(
@@ -234,11 +234,16 @@ class CategoryView extends StatelessWidget {
                             ],
                           ),
                           child: ClipRRect(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(16.0)),
-                            child: AspectRatio(
-                                aspectRatio: 1.28,
-                                child: Image.asset(category.imagePath)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(16.0)),
+                              child: AspectRatio(
+                                  aspectRatio: 1.28,
+                                  child: FadeInImage(
+                                      placeholder: AssetImage(
+                                          'asset/design_course/interFace1.png'),
+                                      image: NetworkImage(category.img),
+                                      )
+                              )
                           ),
                         ),
                       ),

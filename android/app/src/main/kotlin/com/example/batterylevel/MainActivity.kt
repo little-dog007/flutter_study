@@ -68,8 +68,10 @@ class MainActivity: FlutterActivity() {
                 //返回给flutter的参数
                 result.success("success");
             }else if(call.method.equals("loadPlugin")){
-                val apk_path = this.application_.filesDir.absolutePath +"/zip/";
-                val path: String = AssetUtil.copyAssetToCache(this@MainActivity, "plugin_module-debug.apk",apk_path)
+                var text:String? = call.argument("app_name");
+                val apk_path = this.application_.filesDir.absolutePath +"/download/";
+                print(apk_path);
+                val path: String = AssetUtil.copyAssetToCache(this@MainActivity, text,apk_path)
                 PluginManager.getInstance().loadPluginApk(path)
                 Log.d("test","loadPlugin success");
 
